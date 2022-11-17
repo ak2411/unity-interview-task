@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class YTranslateBehavior: MonoBehaviour
 {
-    [SerializeField] private ManipulationWidgetBehavior.ManipulationType m_manipulationType;
+    // [SerializeField] private ManipulationWidgetBehavior.ManipulationType m_manipulationType;
     private Vector3 m_startMousePos;
     private Vector3 m_currentMousePos;
     private Camera m_mainCamera;

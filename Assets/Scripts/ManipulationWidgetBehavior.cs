@@ -1,30 +1,33 @@
+using System;
 using UnityEngine;
 
 public class ManipulationWidgetBehavior : MonoBehaviour
 {
-      // private GameObject m_ManipulatedGameObject;
-      public enum ManipulationType
+      [SerializeField] private ManipulationDirection m_type;
+      private GameObject m_cone;
+      private GameObject m_sphere;
+      private Vector3 m_RotateAngle;
+      public enum ManipulationDirection
       {
-            ROTATE, MOVE, SCALE
+            X, Y, Z
       }
       void Awake()
       {
-            // m_ManipulatedGameObject = this.transform..gameObject;
-      }
+            switch(m_type)
+            {
+                  case ManipulationDirection.X:
+                        m_RotateAngle = new Vector3(0f, 0f, -90f);
+                        break;
+                  case ManipulationDirection.Y:
+                        m_RotateAngle = new Vector3(0f, 0f, 0f);
+                        break;
+                  case ManipulationDirection.Z:
+                        m_RotateAngle = new Vector3(0f, -90f, -90f);
+                        break;
+                  default:
+                        throw new ArgumentOutOfRangeException();
+            }
 
-      public void rotate(Vector3 start, Vector3 end)
-      {
-            
-      }
-
-      public void move(Vector3 start, Vector3 end)
-      {
-            Vector3 mouseChange = end - start;
-            this.transform.position = start+end;
-      }
-
-      public void scale(Vector3 start, Vector3 end)
-      {
-            
+            transform.Rotate(m_RotateAngle);
       }
 }
