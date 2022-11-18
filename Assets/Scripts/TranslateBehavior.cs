@@ -13,7 +13,6 @@ public class TranslateBehavior : MonoBehaviour
 
    private Queue<Vector3> m_mousePositions = new Queue<Vector3>();
    private float m_mouseZPos;
-   private Vector3 m_originalPos;
 
    private void Awake()
    {
@@ -30,9 +29,7 @@ public class TranslateBehavior : MonoBehaviour
 
    private void OnMouseDown()
    {
-      m_originalPos = transform.position;
       m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(transform.position).z;
-      Debug.Log(m_mouseZPos);
       GetComponent<MeshRenderer>().material = m_selectedMaterial;
       m_mousePositions.Enqueue(_getWorldMousePos());
    }
@@ -52,29 +49,22 @@ public class TranslateBehavior : MonoBehaviour
    private void OnMouseUp()
    {
       GetComponent<MeshRenderer>().material = m_unselectedMaterial;
+      m_mousePositions = new Queue<Vector3>();
    }
 
    private void Update()
    {
-      if (m_mousePositions.Count < 1) return;
-      var pos = m_mousePositions.Dequeue();
-      var targetPos = transform.position;
-      switch (m_type)
+      if (m_mousePositions.Count <= 1) return;
+      var endPos = m_mousePositions.Dequeue();
+      var startPos = m_mousePositions.Peek();
+      var targetPos = m_type switch
       {
-         case ManipulationWidgetBehavior.ManipulationDirection.X:
-            targetPos.x = pos.x;
-            break;
-         case ManipulationWidgetBehavior.ManipulationDirection.Y:
-            targetPos.y = pos.y;
-            break;
-         case ManipulationWidgetBehavior.ManipulationDirection.Z:
-            targetPos.z = pos.z;
-            break;
-         default:
-            throw new ArgumentOutOfRangeException();
-      }
+         ManipulationWidgetBehavior.ManipulationDirection.X => Vector3.Project(startPos - endPos, m_parentRef.right),
+         ManipulationWidgetBehavior.ManipulationDirection.Y => Vector3.Project(startPos - endPos, m_parentRef.up),
+         ManipulationWidgetBehavior.ManipulationDirection.Z => Vector3.Project(startPos - endPos, m_parentRef.forward),
+         _ => throw new ArgumentOutOfRangeException()
+      };
 
-      m_parentRef.position += (targetPos-m_originalPos);
-      m_originalPos = targetPos;
+      m_parentRef.position += targetPos;
    }
 }
