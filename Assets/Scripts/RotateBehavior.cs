@@ -74,6 +74,6 @@ public class RotateBehavior : MonoBehaviour
         if (m_mousePositions.Count < 1) return;
         var dir = m_mousePositions.Dequeue();
         var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - m_startingAngle;
-        m_parentRef.rotation = Quaternion.AngleAxis(angle, m_axis);
+        m_parentRef.rotation *= Quaternion.AngleAxis(angle, m_axis);
     }
 }
