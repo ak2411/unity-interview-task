@@ -31,7 +31,8 @@ public class TranslateBehavior : MonoBehaviour
    private void OnMouseDown()
    {
       m_originalPos = transform.position;
-      m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(m_parentRef.position).z;
+      m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(transform.position).z;
+      Debug.Log(m_mouseZPos);
       GetComponent<MeshRenderer>().material = m_selectedMaterial;
       m_mousePositions.Enqueue(_getWorldMousePos());
    }
@@ -67,7 +68,7 @@ public class TranslateBehavior : MonoBehaviour
             targetPos.y = pos.y;
             break;
          case ManipulationWidgetBehavior.ManipulationDirection.Z:
-            targetPos.z = pos.y;
+            targetPos.z = pos.z;
             break;
          default:
             throw new ArgumentOutOfRangeException();

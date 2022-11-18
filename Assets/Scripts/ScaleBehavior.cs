@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class XScaleBehavior : MonoBehaviour
+public class ScaleBehavior : MonoBehaviour
 {
    [SerializeField] private Material m_selectedMaterial;
    private Material m_unselectedMaterial;
@@ -28,7 +28,7 @@ public class XScaleBehavior : MonoBehaviour
 
    private void OnMouseDown()
    {
-      m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(m_spawnRef.position).z;
+      m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(transform.position).z;
       GetComponent<MeshRenderer>().material = m_selectedMaterial;
       m_mousePositions.Enqueue(_getWorldMousePos());
    }
@@ -53,21 +53,16 @@ public class XScaleBehavior : MonoBehaviour
       var endPos = m_mousePositions.Dequeue();
       var startPos = m_mousePositions.Peek();
       var diff = Vector3.zero;
-      var selfScale = Vector3.one;
       switch (m_type)
       {
          case ManipulationWidgetBehavior.ManipulationDirection.X:
             diff.x = (endPos - startPos).x;
-            selfScale.x = (endPos - startPos).x;
             break;
          case ManipulationWidgetBehavior.ManipulationDirection.Y:
-            diff.y = (endPos - startPos).y;
-            selfScale.y = (endPos - startPos).y;
-            Debug.Log(diff.y);
+            diff.y = -(endPos - startPos).y;
             break;
          case ManipulationWidgetBehavior.ManipulationDirection.Z:
-            diff.z = (endPos - startPos).y;
-            selfScale.z = (endPos - startPos).y;
+            diff.z = (endPos - startPos).z;
             break;
          default:
             throw new ArgumentOutOfRangeException();

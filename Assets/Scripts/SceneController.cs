@@ -31,7 +31,12 @@ public class SceneController : MonoBehaviour
         {
             m_SelectedObject.GetComponent<SpawnedObjectBehavior>().UpdateSelectStatus(false);
         }
-        if (newObject == m_SelectedObject) return;
+
+        if (newObject == m_SelectedObject)
+        {
+            m_SelectedObject = null;
+            return;
+        }
         m_SelectedObject = newObject;
         m_SelectedObject.GetComponent<SpawnedObjectBehavior>().UpdateSelectStatus(true);
     }
