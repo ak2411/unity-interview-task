@@ -45,6 +45,7 @@ public class ScaleBehavior : MonoBehaviour
    private void OnMouseUp()
    {
       GetComponent<MeshRenderer>().material = m_unselectedMaterial;
+      m_mousePositions.Clear();
    }
 
    private void Update()

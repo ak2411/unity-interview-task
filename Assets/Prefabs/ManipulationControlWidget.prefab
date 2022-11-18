@@ -26,19 +26,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_selectedMaterial: {fileID: 2100000, guid: f4f552b075c5040bd8373f94cbb693fa, type: 2}
---- !u!114 &750025192427899546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 480185459760134092}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c3c41921c1a4348bb080f1c362bc19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_selectedMaterial: {fileID: 2100000, guid: 90cf9b8f9e481480a85c741f3397bbac, type: 2}
 --- !u!65 &4765868173262585068
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52,6 +39,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.0879116, y: 0.08790714, z: 2.0879116}
   m_Center: {x: 0, y: -0.000000014901161, z: 0}
+--- !u!114 &750025192427899546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 480185459760134092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c3c41921c1a4348bb080f1c362bc19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_selectedMaterial: {fileID: 2100000, guid: 90cf9b8f9e481480a85c741f3397bbac, type: 2}
 --- !u!1 &750025192200252774
 GameObject:
   m_ObjectHideFlags: 0
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 750025192200252771}
   - component: {fileID: 750025192200252768}
   - component: {fileID: 750025192200252701}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -171,7 +171,7 @@ GameObject:
   m_Component:
   - component: {fileID: 750025193005455730}
   - component: {fileID: 750025193005455725}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ManipulationControlWidget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,6 +279,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: torus
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9840867fefab847259ec8942f1338b62, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9840867fefab847259ec8942f1338b62, type: 3}
 --- !u!1 &480185459760134092 stripped
@@ -361,6 +365,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 2437e008ab9b544d1b78dde0478c8b69, type: 3}
       propertyPath: m_Name
       value: cone
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2437e008ab9b544d1b78dde0478c8b69, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2437e008ab9b544d1b78dde0478c8b69, type: 3}

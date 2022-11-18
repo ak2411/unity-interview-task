@@ -15,6 +15,7 @@ public class RotateBehavior : MonoBehaviour
     private float m_startingAngle;
     private Vector3 m_refVec;
     private Vector3 m_axis;
+    private float m_mouseZPos;
 
     void Awake()
     {
@@ -30,16 +31,19 @@ public class RotateBehavior : MonoBehaviour
         switch (m_type)
         {
             case ManipulationWidgetBehavior.ManipulationDirection.X:
-                m_refVec = m_parentRef.right;
-                m_axis = Vector3.up;
+                // m_refVec = m_parentRef.right;
+                // m_axis = m_parentRef.up;
+                m_axis =Vector3.up;
                 break;
             case ManipulationWidgetBehavior.ManipulationDirection.Y:
-                m_refVec = m_parentRef.right;
-                m_axis = Vector3.forward;
+                // m_refVec = m_parentRef.right;
+                // m_axis = m_parentRef.forward;
+                m_axis = Vector3.right;
                 break;
             case ManipulationWidgetBehavior.ManipulationDirection.Z:
-                m_refVec = m_parentRef.forward;
-                m_axis = Vector3.right;
+                // m_refVec = m_parentRef.forward;
+                // m_axis = m_parentRef.right;
+                m_axis = Vector3.forward;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -50,6 +54,8 @@ public class RotateBehavior : MonoBehaviour
     {
         GetComponent<MeshRenderer>().material = m_selectedMaterial;
         var dir = _getMouseDirection();
+        m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(transform.position).z;
+
         m_startingAngle = (Mathf.Atan2(dir.y, dir.x)-Mathf.Atan2(m_refVec.y, m_refVec.x)) * Mathf.Rad2Deg;
         m_mousePositions.Enqueue(dir);
     }
@@ -62,18 +68,39 @@ public class RotateBehavior : MonoBehaviour
     private void OnMouseUp()
     {
         GetComponent<MeshRenderer>().material = m_unselectedMaterial;
+        m_mousePositions.Clear();
     }
 
     private Vector3 _getMouseDirection()
     {
-        return Input.mousePosition - m_mainCameraRef.WorldToScreenPoint(transform.position);
+        var mousePos = Input.mousePosition;
+        mousePos.z = m_mouseZPos;
+        return m_mainCameraRef.ScreenToWorldPoint(mousePos);
+        // return Input.mousePosition - m_mainCameraRef.WorldToScreenPoint(transform.position);
     }
 
     private void Update()
     {
-        if (m_mousePositions.Count < 1) return;
+        if (m_mousePositions.Count <= 1) return;
         var dir = m_mousePositions.Dequeue();
+        var start = m_mousePositions.Peek();
         var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - m_startingAngle;
-        m_parentRef.rotation *= Quaternion.AngleAxis(angle, m_axis);
+        var diff = 0f;
+        switch (m_type)
+        {
+            case ManipulationWidgetBehavior.ManipulationDirection.X:
+                diff = (dir-start).x;
+                break;
+            case ManipulationWidgetBehavior.ManipulationDirection.Y:
+                diff = -(dir-start).y;
+                break;
+            case ManipulationWidgetBehavior.ManipulationDirection.Z:
+                diff = (dir-start).z;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        // m_parentRef.rotation *= Quaternion.AngleAxis(angle, m_axis);
+        m_parentRef.RotateAround(m_parentRef.position,m_axis, 20f* diff);
     }
 }
