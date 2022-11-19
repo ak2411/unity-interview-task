@@ -13,7 +13,6 @@ public class newScaleBehavior : MonoBehaviour
     private Camera m_mainCameraRef;
 
     private Transform m_cubeRef;
-    private Transform m_scaleRef;
     private Material m_unselectedMaterialRef;
     private Vector3 m_normal;
 
@@ -24,7 +23,11 @@ public class newScaleBehavior : MonoBehaviour
         m_cubeRef = transform.parent.parent.GetChild(0);
         m_mainCameraRef = Camera.main;
         m_unselectedMaterialRef = GetComponent<MeshRenderer>().material;
+        UpdatePosition();
+    }
 
+    public void UpdatePosition()
+    {
         m_normal = m_type switch
         {
             ManipulationWidgetBehavior.ManipulationDirection.X => m_cubeRef.right,
@@ -32,14 +35,8 @@ public class newScaleBehavior : MonoBehaviour
             ManipulationWidgetBehavior.ManipulationDirection.Z => m_cubeRef.forward,
             _ => throw new ArgumentOutOfRangeException()
         };
-        UpdatePosition();
-    }
-
-    public void UpdatePosition()
-    {
         var distance = Vector3.Distance(m_cubeRef.GetComponent<BoxCollider>().bounds.max, m_cubeRef.position);
-        transform.position = (distance + OFFSET) * m_normal;
-        transform.LookAt(-m_cubeRef.position);
+        transform.position = m_cubeRef.position+((distance + OFFSET) * m_normal);
     }
 
     private void OnMouseDown()
@@ -62,16 +59,23 @@ public class newScaleBehavior : MonoBehaviour
     {
         GetComponent<MeshRenderer>().material = m_unselectedMaterialRef;
         m_mousePositions.Clear();
+        m_cubeRef.hasChanged = false;
     }
-    
     private void Update()
     {
         if(m_cubeRef.hasChanged) UpdatePosition();
         if (m_mousePositions.Count <= 1) return;
+        m_normal = m_type switch
+        {
+            ManipulationWidgetBehavior.ManipulationDirection.X => m_cubeRef.right,
+            ManipulationWidgetBehavior.ManipulationDirection.Y => m_cubeRef.up,
+            ManipulationWidgetBehavior.ManipulationDirection.Z => m_cubeRef.forward,
+            _ => throw new ArgumentOutOfRangeException()
+        };
         var endPos =  Vector3.Project(m_mousePositions.Dequeue(), m_normal);
         var startPos = Vector3.Project(m_mousePositions.Peek(), m_normal);
-        var dist = Vector3.Distance(startPos, startPos);
-        var dir = Vector3.Dot(startPos-startPos, m_normal) <0 ? -1:1;
+        var dist = Vector3.Distance(startPos, endPos);
+        var dir = Vector3.Dot(startPos-endPos, m_normal) <0 ? -1:1;
         var diff = Vector3.zero;
         switch (m_type)
         {

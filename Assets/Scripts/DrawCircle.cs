@@ -15,7 +15,7 @@ public class DrawCircle : MonoBehaviour
     {
         m_lineRef = GetComponent<LineRenderer>();
         m_lineRef.positionCount = SEGMENTS;
-        m_lineRef.useWorldSpace = false;
+        m_lineRef.useWorldSpace = true;
         m_lineRef.startWidth = 0.1f;
         m_colliderRef = GetComponent<MeshCollider>();
         m_cubeRef = transform.parent.parent.GetChild(0);
@@ -29,7 +29,6 @@ public class DrawCircle : MonoBehaviour
 
     public void UpdateRadius()
     {
-        
         var rad = Vector3.Distance(m_cubeRef.GetComponent<BoxCollider>().bounds.max, m_cubeRef.position);
         float x;
         float y;
@@ -45,7 +44,7 @@ public class DrawCircle : MonoBehaviour
                 ManipulationWidgetBehavior.ManipulationDirection.Z => new Vector3(x, y, 0),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            m_lineRef.SetPosition(i, pointPos);
+            m_lineRef.SetPosition(i, pointPos+m_cubeRef.position);
             angle += (380f / SEGMENTS);
         }
 
@@ -54,17 +53,17 @@ public class DrawCircle : MonoBehaviour
         m_colliderRef.sharedMesh = mesh;
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(Vector3.zero,Vector3.up);
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(Vector3.zero,Vector3.right);
-        Gizmos.color = Color.blue;
-
-        Gizmos.DrawLine(Vector3.zero,Vector3.forward);
-
-    }
+    // private void OnDrawGizmos()
+    // {
+    //     Gizmos.color = Color.green;
+    //     Gizmos.DrawLine(Vector3.zero,Vector3.up);
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawLine(Vector3.zero,Vector3.right);
+    //     Gizmos.color = Color.blue;
+    //
+    //     Gizmos.DrawLine(Vector3.zero,Vector3.forward);
+    //
+    // }
 
     private void Update()
     {
