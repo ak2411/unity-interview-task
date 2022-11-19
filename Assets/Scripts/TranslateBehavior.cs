@@ -64,7 +64,7 @@ public class TranslateBehavior : MonoBehaviour
          ManipulationWidgetBehavior.ManipulationDirection.Z => Vector3.Project(startPos - endPos, m_parentRef.forward),
          _ => throw new ArgumentOutOfRangeException()
       };
-
+      Debug.Log(targetPos);
       m_parentRef.position += targetPos;
    }
 }
