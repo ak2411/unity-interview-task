@@ -83,12 +83,6 @@ public class RotateBehavior : MonoBehaviour
         // return Input.mousePosition - m_mainCameraRef.WorldToScreenPoint(transform.position);
     }
 
-    // private void OnDrawGizmos()
-    // {
-    //     Gizmos.color = Color.blue;
-    //     Gizmos.DrawLine(m_parentRef.position, testpos);
-    // }
-
     private void Update()
     {
         if (m_mousePositions.Count <= 1) return;
