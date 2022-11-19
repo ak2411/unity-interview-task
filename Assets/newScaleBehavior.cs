@@ -63,27 +63,30 @@ public class newScaleBehavior : MonoBehaviour
         GetComponent<MeshRenderer>().material = m_unselectedMaterialRef;
         m_mousePositions.Clear();
     }
+    
     private void Update()
     {
+        if(m_cubeRef.hasChanged) UpdatePosition();
         if (m_mousePositions.Count <= 1) return;
-        var endPos = m_mousePositions.Dequeue();
-        var startPos = m_mousePositions.Peek();
+        var endPos =  Vector3.Project(m_mousePositions.Dequeue(), m_normal);
+        var startPos = Vector3.Project(m_mousePositions.Peek(), m_normal);
+        var dist = Vector3.Distance(startPos, startPos);
+        var dir = Vector3.Dot(startPos-startPos, m_normal) <0 ? -1:1;
         var diff = Vector3.zero;
         switch (m_type)
         {
             case ManipulationWidgetBehavior.ManipulationDirection.X:
-                diff.x = (endPos - startPos).x;
+                diff.x = dir * dist;
                 break;
             case ManipulationWidgetBehavior.ManipulationDirection.Y:
-                diff.y = -(endPos - startPos).y;
+                diff.y = dir * dist;
                 break;
             case ManipulationWidgetBehavior.ManipulationDirection.Z:
-                diff.z = (endPos - startPos).z;
+                diff.z = dir * dist;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
         m_cubeRef.localScale += diff;
-        UpdatePosition();
     }
 }
