@@ -1,125 +1,133 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(LineRenderer), typeof(MeshCollider))]
 public class RotateBehavior : MonoBehaviour
 {
     [SerializeField] private Material m_selectedMaterial;
-    private Material m_unselectedMaterial;
-    private ManipulationWidgetBehavior.ManipulationDirection m_type;
-    private Camera m_mainCameraRef;
-    private Transform m_parentRef;
+    [SerializeField] private ManipulationHelpers.ManipulationType m_type;
+    private const int SEGMENTS = 50;
     
-    private Queue<Vector3> m_mousePositions = new Queue<Vector3>();
-    private float m_startingAngle;
-    private Vector3 m_refVec;
-    private Vector3 m_rotationAxis;
-    private Vector3 m_projectionAxis;
-    private float m_mouseZPos;
-    private Vector3 testpos = Vector3.zero;
-    void Awake()
-    {
-        if (!transform.parent.GetComponent<ManipulationWidgetBehavior>())
-        {
-            throw new Exception("Parent must have the ManipulationWidgetBehavior");
-        }
+    private LineRenderer m_lineRef;
+    private MeshCollider m_colliderRef;
+    private Transform m_cubeRef;
+    private Transform m_rotateGizmoRef;
+    private Camera m_mainCameraRef;
+    private Material m_unselectedMaterialRef;
 
-        m_type = transform.parent.GetComponent<ManipulationWidgetBehavior>().m_type;
-        m_unselectedMaterial = GetComponent<MeshRenderer>().material;
+    private Queue<Vector3> m_mousePositions = new Queue<Vector3>();
+    private float m_mouseZPos;
+    private Vector3 m_rotationAxis;
+    private float m_previousRad;
+    private float m_originalRad;
+
+    // private Vector3 m_start;
+    // private Vector3 m_end;
+
+    private void Awake()
+    {
+        m_lineRef = GetComponent<LineRenderer>();
+        m_lineRef.positionCount = SEGMENTS;
+        m_lineRef.useWorldSpace = false;
+        m_lineRef.startWidth = 0.1f;
+        m_colliderRef = GetComponent<MeshCollider>();
+        m_cubeRef = transform.parent.parent.GetChild(0);
+        m_rotateGizmoRef = transform.parent;
+        m_unselectedMaterialRef = GetComponent<LineRenderer>().material;
         m_mainCameraRef = Camera.main;
-        m_parentRef = transform.parent.parent;
         switch (m_type)
         {
-            case ManipulationWidgetBehavior.ManipulationDirection.X:
-                // m_refVec = m_parentRef.right;
-                // m_axis = m_parentRef.up;
-                m_rotationAxis =m_parentRef.up;
-                m_projectionAxis = m_parentRef.right;
+            case ManipulationHelpers.ManipulationType.X:
+                m_rotationAxis = Vector3.right;
                 break;
-            case ManipulationWidgetBehavior.ManipulationDirection.Y:
-                // m_refVec = m_parentRef.right;
-                // m_axis = m_parentRef.forward;
-                m_rotationAxis = m_parentRef.forward;
-                m_projectionAxis = -m_parentRef.up;
+            case ManipulationHelpers.ManipulationType.Y:
+                m_rotationAxis = Vector3.up;
                 break;
-            case ManipulationWidgetBehavior.ManipulationDirection.Z:
-                // m_refVec = m_parentRef.forward;
-                // m_axis = m_parentRef.right;
-                m_rotationAxis = m_parentRef.right;
-                m_projectionAxis = -m_parentRef.forward;
+            case ManipulationHelpers.ManipulationType.Z:
+                m_rotationAxis = Vector3.forward;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        UpdateRadius();
     }
 
+    private void UpdateRadius()
+    {
+        var rad = Vector3.Distance(m_cubeRef.GetComponent<BoxCollider>().bounds.max, m_cubeRef.position);
+        float x;
+        float y;
+        float angle = 10f;
+        for (int i = 0; i < SEGMENTS; i++)
+        {
+            x = Mathf.Sin(Mathf.Deg2Rad * angle) * rad;
+            y = Mathf.Cos(Mathf.Deg2Rad * angle) * rad;
+            var pointPos = m_type switch
+            {
+                ManipulationHelpers.ManipulationType.X => new Vector3(0, x, y) ,
+                ManipulationHelpers.ManipulationType.Y => new Vector3(x, 0, y),
+                ManipulationHelpers.ManipulationType.Z => new Vector3(x, y, 0),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            m_lineRef.SetPosition(i, pointPos+ transform.InverseTransformPoint(m_cubeRef.position));
+            angle += (380f / SEGMENTS);
+        }
+
+        Mesh mesh = new Mesh();
+        m_lineRef.BakeMesh(mesh);
+        mesh.SetIndices(mesh.GetIndices(0).Concat(mesh.GetIndices(0).Reverse()).ToArray(), MeshTopology.Triangles, 0);
+        m_colliderRef.sharedMesh = mesh;
+    }
+    
     private void OnMouseDown()
     {
-        GetComponent<MeshRenderer>().material = m_selectedMaterial;
-        var dir = _getMouseDirection();
-        m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(transform.position).z;
-
-        m_startingAngle = (Mathf.Atan2(dir.y, dir.x)-Mathf.Atan2(m_refVec.y, m_refVec.x)) * Mathf.Rad2Deg;
-        m_mousePositions.Enqueue(dir);
+        GetComponent<LineRenderer>().material = m_selectedMaterial;
+        var mouseRay = m_mainCameraRef.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(mouseRay, out hit))
+        {
+            m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(hit.point).z;
+        }
+        m_mousePositions.Enqueue(_getWorldMousePos());
     }
-
-    private void OnMouseDrag()
-    {
-        m_mousePositions.Enqueue(_getMouseDirection());
-    }
-
-    private void OnMouseUp()
-    {
-        GetComponent<MeshRenderer>().material = m_unselectedMaterial;
-        m_mousePositions = new Queue<Vector3>();
-    }
-
-    private Vector3 _getMouseDirection()
+    private Vector3 _getWorldMousePos()
     {
         var mousePos = Input.mousePosition;
         mousePos.z = m_mouseZPos;
         return m_mainCameraRef.ScreenToWorldPoint(mousePos);
-        // return Input.mousePosition - m_mainCameraRef.WorldToScreenPoint(transform.position);
     }
+    private void OnMouseDrag()
+    {
+        m_mousePositions.Enqueue(_getWorldMousePos());
+    }
+    private void OnMouseUp()
+    {
+        GetComponent<LineRenderer>().material = m_unselectedMaterialRef;
+        m_mousePositions.Clear();
+        m_cubeRef.hasChanged = false;
+        m_rotateGizmoRef.rotation = Quaternion.identity;
+    }
+
+    // private void OnDrawGizmosSelected()
+    // {
+    //     Gizmos.color = Color.blue;
+    //     Gizmos.DrawLine(m_cubeRef.position, m_end);
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawLine(m_cubeRef.position, m_start);
+    // }
 
     private void Update()
     {
+        if (m_cubeRef.hasChanged) UpdateRadius();
         if (m_mousePositions.Count <= 1) return;
-        var endPos= Vector3.Project(m_mousePositions.Dequeue(), m_projectionAxis);
-        testpos = endPos;
-        var startPos = Vector3.Project(m_mousePositions.Peek(), m_projectionAxis);
-        // var endPos= Vector3.ProjectOnPlane(m_mousePositions.Dequeue() - m_parentRef.position, m_axis);
-        // var startPos = Vector3.ProjectOnPlane(m_mousePositions.Peek() - m_parentRef.position, m_axis);
-        var mag = Vector3.Distance(startPos, endPos);
-        var dir = Vector3.Dot(endPos - startPos, m_projectionAxis) <0 ? -1:1;
-        Debug.Log(dir);
-        float angle = 0f;
-        // var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - m_startingAngle;
-         // var diff = 0f;
-        switch (m_type)
-        {
-            case ManipulationWidgetBehavior.ManipulationDirection.X:
-                // angle = Vector3.Project(m_parentRef.position - endPos, m_parentRef.right);
-                angle = (endPos-startPos).x;
-                break;
-            case ManipulationWidgetBehavior.ManipulationDirection.Y:
-                angle = (endPos-startPos).y;
-                break;
-            case ManipulationWidgetBehavior.ManipulationDirection.Z:
-                angle = (endPos-startPos).z;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-        // m_parentRef.rotation *= Quaternion.AngleAxis(angle, m_axis);
-        // m_parentRef.RotateAround(m_parentRef.position,m_axis, 20f* diff);
-        //  endVec = Vector3.ProjectOnPlane(dir- m_parentRef.position, m_parentRef.right);
-        // var startVec = Vector3.ProjectOnPlane(start -m_parentRef.position, m_parentRef.right);
-        // Debug.Log(startVec-endVec);
-        // angle = (startVec-endVec).y;
-        // m_parentRef.Rotate(20f*(endPos-startPos));
-        // m_parentRef.RotateAround(m_parentRef.position,m_rotationAxis, 20f* mag*dir);
-        m_parentRef.rotation *= Quaternion.AngleAxis(mag*dir*20f, m_rotationAxis);
+        var endPos = m_mousePositions.Dequeue();
+        var startPos = m_mousePositions.Peek();
+        var angle = -Vector3.SignedAngle( startPos- m_cubeRef.position,
+             endPos- m_cubeRef.position, m_rotationAxis);
+        m_cubeRef.Rotate(m_rotationAxis, angle, Space.World);
+        m_rotateGizmoRef.Rotate(m_rotationAxis, angle, Space.World);
     }
 }

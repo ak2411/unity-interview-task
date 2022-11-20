@@ -2,11 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
+[RequireComponent(typeof(BoxCollider))]
 public class SpawnedObjectBehavior : MonoBehaviour
 {
     private bool m_selected;
-    private const string SPAWNEDOBJNAME = "Cube";
     private void OnMouseDown()
     {
         SceneController.Instance.SelectObjectHandler(gameObject);
@@ -14,11 +15,10 @@ public class SpawnedObjectBehavior : MonoBehaviour
 
     public void UpdateSelectStatus(bool newStatus)
     {
-        foreach(Transform child in transform)
+        foreach(Transform child in transform.parent)
         {
-            if (child.name == SPAWNEDOBJNAME) continue;
+            if (child.name == name) continue;
             child.gameObject.SetActive(newStatus);
-            Debug.Log("hi");
         }
     }
 }
