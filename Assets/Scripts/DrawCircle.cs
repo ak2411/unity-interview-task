@@ -20,7 +20,9 @@ public class DrawCircle : MonoBehaviour
     private Queue<Vector3> m_mousePositions = new Queue<Vector3>();
     private float m_mouseZPos;
     private Vector3 m_rotationAxis;
-    private Vector3 m_projectionAxis;
+
+    // private Vector3 m_start;
+    // private Vector3 m_end;
 
     private void Awake()
     {
@@ -37,15 +39,12 @@ public class DrawCircle : MonoBehaviour
         {
             case ManipulationWidgetBehavior.ManipulationDirection.X:
                 m_rotationAxis = Vector3.right;
-                m_projectionAxis = Vector3.up;
                 break;
             case ManipulationWidgetBehavior.ManipulationDirection.Y:
-                m_rotationAxis =Vector3.up;
-                m_projectionAxis = Vector3.right;
+                m_rotationAxis = Vector3.up;
                 break;
             case ManipulationWidgetBehavior.ManipulationDirection.Z:
                 m_rotationAxis = Vector3.forward;
-                m_projectionAxis = Vector3.up;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -82,7 +81,12 @@ public class DrawCircle : MonoBehaviour
     private void OnMouseDown()
     {
         GetComponent<LineRenderer>().material = m_selectedMaterial;
-        m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(transform.position).z;
+        var mouseRay = m_mainCameraRef.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(mouseRay, out hit))
+        {
+            m_mouseZPos = m_mainCameraRef.WorldToScreenPoint(hit.point).z;
+        }
         m_mousePositions.Enqueue(_getWorldMousePos());
     }
     private Vector3 _getWorldMousePos()
@@ -103,15 +107,23 @@ public class DrawCircle : MonoBehaviour
         m_rotateGizmoRef.rotation = Quaternion.identity;
     }
 
+    // private void OnDrawGizmosSelected()
+    // {
+    //     Gizmos.color = Color.blue;
+    //     Gizmos.DrawLine(m_cubeRef.position, m_end);
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawLine(m_cubeRef.position, m_start);
+    // }
+
     private void Update()
     {
         if (m_cubeRef.hasChanged) UpdateRadius();
         if (m_mousePositions.Count <= 1) return;
-        var endPos= Vector3.ProjectOnPlane(m_mousePositions.Dequeue(), m_rotationAxis);
-        var startPos = Vector3.ProjectOnPlane(m_mousePositions.Peek(), m_rotationAxis);
-        var mag = Vector3.Distance(startPos, endPos);
-        var dir = Vector3.Dot(endPos - startPos, m_projectionAxis) <0 ? -1:1;
-        m_cubeRef.rotation *= Quaternion.AngleAxis(mag*dir*20f, m_rotationAxis);
-        m_rotateGizmoRef.rotation *= Quaternion.AngleAxis(mag*dir*20f, m_rotationAxis);
+        var endPos = m_mousePositions.Dequeue();
+        var startPos = m_mousePositions.Peek();
+        var angle = -Vector3.SignedAngle( startPos- m_cubeRef.position,
+             endPos- m_cubeRef.position, m_rotationAxis);
+        m_cubeRef.Rotate(m_rotationAxis, angle, Space.World);
+        m_rotateGizmoRef.Rotate(m_rotationAxis, angle, Space.World);
     }
 }
