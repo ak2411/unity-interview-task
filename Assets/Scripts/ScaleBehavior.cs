@@ -23,10 +23,10 @@ public class ScaleBehavior : MonoBehaviour
         m_cubeRef = transform.parent.parent.GetChild(0);
         m_mainCameraRef = Camera.main;
         m_unselectedMaterialRef = GetComponent<MeshRenderer>().material;
-        UpdatePosition();
+        _updatePosition();
     }
 
-    public void UpdatePosition()
+    private void _updatePosition()
     {
         m_normal = m_type switch
         {
@@ -63,7 +63,7 @@ public class ScaleBehavior : MonoBehaviour
     }
     private void Update()
     {
-        if(m_cubeRef.hasChanged) UpdatePosition();
+        if(m_cubeRef.hasChanged) _updatePosition();
         if (m_mousePositions.Count <= 1) return;
         m_normal = m_type switch
         {

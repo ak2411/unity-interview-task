@@ -21,11 +21,6 @@ public class RotateBehavior : MonoBehaviour
     private Queue<Vector3> m_mousePositions = new Queue<Vector3>();
     private float m_mouseZPos;
     private Vector3 m_rotationAxis;
-    private float m_previousRad;
-    private float m_originalRad;
-
-    // private Vector3 m_start;
-    // private Vector3 m_end;
 
     private void Awake()
     {
@@ -52,10 +47,10 @@ public class RotateBehavior : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        UpdateRadius();
+        _updateRadius();
     }
 
-    private void UpdateRadius()
+    private void _updateRadius()
     {
         var rad = Vector3.Distance(m_cubeRef.GetComponent<BoxCollider>().bounds.max, m_cubeRef.position);
         float x;
@@ -111,17 +106,9 @@ public class RotateBehavior : MonoBehaviour
         m_rotateGizmoRef.rotation = Quaternion.identity;
     }
 
-    // private void OnDrawGizmosSelected()
-    // {
-    //     Gizmos.color = Color.blue;
-    //     Gizmos.DrawLine(m_cubeRef.position, m_end);
-    //     Gizmos.color = Color.red;
-    //     Gizmos.DrawLine(m_cubeRef.position, m_start);
-    // }
-
     private void Update()
     {
-        if (m_cubeRef.hasChanged) UpdateRadius();
+        if (m_cubeRef.hasChanged) _updateRadius();
         if (m_mousePositions.Count <= 1) return;
         var endPos = m_mousePositions.Dequeue();
         var startPos = m_mousePositions.Peek();

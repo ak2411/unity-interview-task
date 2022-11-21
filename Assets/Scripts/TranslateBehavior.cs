@@ -31,10 +31,10 @@ public class TranslateBehavior : MonoBehaviour
             ManipulationHelpers.ManipulationType.Z => Vector3.forward,
             _ => throw new ArgumentOutOfRangeException()
         };
-        UpdatePosition();
+        _updatePosition();
     }
 
-    private void UpdatePosition()
+    private void _updatePosition()
     {
         var distance = Vector3.Distance(m_cubeRef.GetComponent<BoxCollider>().bounds.max, m_cubeRef.position);
         transform.position = m_cubeRef.position+ (distance + OFFSET) * m_normal;
@@ -66,7 +66,7 @@ public class TranslateBehavior : MonoBehaviour
 
     private void Update()
     {
-        if(m_cubeRef.hasChanged) UpdatePosition();
+        if(m_cubeRef.hasChanged) _updatePosition();
         if (m_mousePositions.Count <= 1) return;
         var endPos = m_mousePositions.Dequeue();
         var startPos = m_mousePositions.Peek();
