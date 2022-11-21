@@ -7,7 +7,7 @@ public class SimplePlayerController : MonoBehaviour
 {
     private float speed = 2.0f;
     private Camera m_mainCamRef;
-    private Vector3 m_prevPos = new Vector3(255, 255, 255);
+    private Vector3 m_prevPos = Vector3.negativeInfinity;
     private void Awake()
     {
         m_mainCamRef = Camera.main;
@@ -48,10 +48,13 @@ public class SimplePlayerController : MonoBehaviour
 
         if (Input.GetMouseButton(1))
         {
-            m_prevPos = Input.mousePosition - m_prevPos;
-            m_prevPos = new Vector3(-m_prevPos.y * 0.2f, m_prevPos.x * 0.2f, 0);
-            m_prevPos = new Vector3(transform.eulerAngles.x + m_prevPos.x, transform.eulerAngles.y + m_prevPos.y, 0);
-            transform.eulerAngles = m_prevPos;
+            if (m_prevPos != Vector3.negativeInfinity)
+            {
+                m_prevPos = Input.mousePosition - m_prevPos;
+                m_prevPos = new Vector3(-m_prevPos.y * 0.2f, m_prevPos.x * 0.2f, 0);
+                m_prevPos = new Vector3(transform.eulerAngles.x + m_prevPos.x, transform.eulerAngles.y + m_prevPos.y, 0);
+                transform.eulerAngles = m_prevPos;
+            }
             m_prevPos = Input.mousePosition;
         }
     }
