@@ -28,7 +28,7 @@ public class TranslateBehavior : MonoBehaviour
         {
             ManipulationHelpers.ManipulationType.X => Vector3.right,
             ManipulationHelpers.ManipulationType.Y => Vector3.up,
-            ManipulationHelpers.ManipulationType.Z => Vector3.forward,
+            ManipulationHelpers.ManipulationType.Z => -Vector3.forward,
             _ => throw new ArgumentOutOfRangeException()
         };
         _updatePosition();
@@ -61,7 +61,7 @@ public class TranslateBehavior : MonoBehaviour
     {
         GetComponent<MeshRenderer>().material = m_unselectedMaterialRef;
         m_mousePositions = new Queue<Vector3>();
-        m_cubeRef.hasChanged = false;
+        SceneController.Instance.TurnOffHasChanged();
     }
 
     private void Update()

@@ -32,7 +32,7 @@ public class ScaleBehavior : MonoBehaviour
         {
             ManipulationHelpers.ManipulationType.X => m_cubeRef.right,
             ManipulationHelpers.ManipulationType.Y => m_cubeRef.up,
-            ManipulationHelpers.ManipulationType.Z => m_cubeRef.forward,
+            ManipulationHelpers.ManipulationType.Z => -m_cubeRef.forward,
             _ => throw new ArgumentOutOfRangeException()
         };
         var distance = Vector3.Distance(m_cubeRef.GetComponent<BoxCollider>().bounds.max, m_cubeRef.position);
@@ -59,7 +59,7 @@ public class ScaleBehavior : MonoBehaviour
     {
         GetComponent<MeshRenderer>().material = m_unselectedMaterialRef;
         m_mousePositions.Clear();
-        m_cubeRef.hasChanged = false;
+        SceneController.Instance.TurnOffHasChanged();
     }
     private void Update()
     {
@@ -69,7 +69,7 @@ public class ScaleBehavior : MonoBehaviour
         {
             ManipulationHelpers.ManipulationType.X => m_cubeRef.right,
             ManipulationHelpers.ManipulationType.Y => m_cubeRef.up,
-            ManipulationHelpers.ManipulationType.Z => m_cubeRef.forward,
+            ManipulationHelpers.ManipulationType.Z => -m_cubeRef.forward,
             _ => throw new ArgumentOutOfRangeException()
         };
         var endPos =  Vector3.Project(m_mousePositions.Dequeue(), m_normal);

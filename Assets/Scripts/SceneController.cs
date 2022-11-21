@@ -12,7 +12,9 @@ public class SceneController : MonoBehaviour
         get { return m_Instance; }
     }
 
-    private GameObject m_SelectedObject;
+    private GameObject m_selectedObject;
+    private bool m_selectedHasChanged = false;
+    
     private void Awake()
     {
         if (m_Instance != null && m_Instance != this)
@@ -27,17 +29,30 @@ public class SceneController : MonoBehaviour
 
     public void SelectObjectHandler(GameObject newObject)
     {
-        if (m_SelectedObject)
+        if (m_selectedObject)
         {
-            m_SelectedObject.GetComponent<SpawnedObjectBehavior>().UpdateSelectStatus(false);
+            m_selectedObject.GetComponent<SpawnedObjectBehavior>().UpdateSelectStatus(false);
         }
 
-        if (newObject == m_SelectedObject)
+        if (newObject == m_selectedObject)
         {
-            m_SelectedObject = null;
+            m_selectedObject = null;
             return;
         }
-        m_SelectedObject = newObject;
-        m_SelectedObject.GetComponent<SpawnedObjectBehavior>().UpdateSelectStatus(true);
+        m_selectedObject = newObject;
+        m_selectedObject.GetComponent<SpawnedObjectBehavior>().UpdateSelectStatus(true);
+    }
+
+    public void TurnOffHasChanged()
+    {
+        m_selectedHasChanged = true;
+    }
+    
+    private void LateUpdate()
+    {
+        if (m_selectedHasChanged)
+        {
+            m_selectedHasChanged = m_selectedObject.transform.hasChanged = false;
+        }
     }
 }

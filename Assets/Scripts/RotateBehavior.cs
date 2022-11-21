@@ -62,7 +62,7 @@ public class RotateBehavior : MonoBehaviour
             y = Mathf.Cos(Mathf.Deg2Rad * angle) * rad;
             var pointPos = m_type switch
             {
-                ManipulationHelpers.ManipulationType.X => new Vector3(0, x, y) ,
+                ManipulationHelpers.ManipulationType.X => new Vector3(0, x, y),
                 ManipulationHelpers.ManipulationType.Y => new Vector3(x, 0, y),
                 ManipulationHelpers.ManipulationType.Z => new Vector3(x, y, 0),
                 _ => throw new ArgumentOutOfRangeException()
@@ -102,8 +102,9 @@ public class RotateBehavior : MonoBehaviour
     {
         GetComponent<LineRenderer>().material = m_unselectedMaterialRef;
         m_mousePositions.Clear();
-        m_cubeRef.hasChanged = false;
         m_rotateGizmoRef.rotation = Quaternion.identity;
+        _updateRadius();
+        SceneController.Instance.TurnOffHasChanged();
     }
 
     private void Update()
