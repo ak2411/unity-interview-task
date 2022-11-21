@@ -2,7 +2,8 @@
 This project assumes global gizmo manipulation on the spawned object
 
 
-https://user-images.githubusercontent.com/18011694/202936724-1d80d145-a7df-469e-b811-85aa1a87f44c.mp4
+https://user-images.githubusercontent.com/18011694/202996714-8a573384-320d-4680-baac-0ef5d56f6ae0.mp4
+
 
 
 ## Build Instructions
@@ -14,6 +15,7 @@ https://user-images.githubusercontent.com/18011694/202936724-1d80d145-a7df-469e-
 ## Features
 * Click and drag to spawn cube and move it to a desired position
 * Click any cube to show the gizmo, click again to hide the gizmo
+* The z axis is manipulable when the camera rotation is not 0
 
 ## Camera Navigation
 * **WASD** move forward/back, left/right
